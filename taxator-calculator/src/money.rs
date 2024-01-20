@@ -1,9 +1,11 @@
 //! Simple representation of monetary amounts.
 
+use std::fmt::{Display, Formatter};
+
 use thiserror::Error;
 
 /// A monetary amount in a given currency.
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
 pub struct Money {
     amount: f32,
     currency: Currency,
@@ -28,6 +30,14 @@ pub enum MoneyArithmeticsError {
 impl Money {
     pub fn new(amount: f32, currency: Currency) -> Self {
         Self { amount, currency }
+    }
+
+    /// Calculates total for a number of amounts.
+    /// Fails when mixed currencies are passed for the calculation.
+    pub fn total(amounts: &[Money]) -> Result<Money, MoneyArithmeticsError> {
+        amounts
+            .iter()
+            .try_fold(Money::new(0., Currency::default()), |x, y| x.add(y))
     }
 
     /// Creates a new amount which is a provided percent of a current amount.
@@ -61,6 +71,10 @@ impl Money {
         self.currency
     }
 
+    pub fn is_positive(&self) -> bool {
+        self.amount > 0.
+    }
+
     /// Checks if money currencies match.
     fn assert_currency_match(&self, rhs: &Money) -> Result<(), MoneyArithmeticsError> {
         if self.currency != rhs.currency {
@@ -70,6 +84,25 @@ impl Money {
             ));
         }
         Ok(())
+    }
+}
+
+impl Display for Currency {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Currency::UAH => write!(f, "{}", "₴"),
+            Currency::USD => write!(f, "{}", "$"),
+            Currency::EUR => write!(f, "{}", "€"),
+        }
+    }
+}
+
+impl Display for Money {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self.currency {
+            Currency::USD => write!(f, "{}{:.2}", self.currency, self.amount),
+            Currency::UAH | Currency::EUR => write!(f, "{:.2} {}", self.amount, self.currency),
+        }
     }
 }
 
