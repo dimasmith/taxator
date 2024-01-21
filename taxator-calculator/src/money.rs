@@ -90,9 +90,9 @@ impl Money {
 impl Display for Currency {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            Currency::UAH => write!(f, "{}", "₴"),
-            Currency::USD => write!(f, "{}", "$"),
-            Currency::EUR => write!(f, "{}", "€"),
+            Currency::UAH => write!(f, "₴"),
+            Currency::USD => write!(f, "$"),
+            Currency::EUR => write!(f, "€"),
         }
     }
 }
