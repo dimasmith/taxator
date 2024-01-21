@@ -1,5 +1,5 @@
 //! Components to render income ledger
-use eframe::egui::{Grid, InnerResponse, Response, Ui, Widget};
+use eframe::egui::{Grid, InnerResponse, Ui};
 
 use taxator_calculator::money::Money;
 
@@ -68,28 +68,6 @@ impl<'a> LedgerView<'a> {
             }
         }
 
-        InnerResponse::new(None, component.response)
-    }
-}
-
-impl<'a> Widget for LedgerView<'a> {
-    fn ui(self, ui: &mut Ui) -> Response {
-        let num_columns = if self.can_delete { 3 } else { 2 };
-        let mut deleted_idx = None;
-        let component = Grid::new("ledger")
-            .num_columns(num_columns)
-            .striped(true)
-            .show(ui, |ui| {
-                for (idx, money) in self.ledger.iter().enumerate() {
-                    ui.label(format!("{}", idx));
-                    ui.label(format!("{}", money));
-                    if self.can_delete && ui.button("X").clicked() {
-                        deleted_idx = Some(idx);
-                    }
-                    ui.end_row();
-                }
-            });
-
-        component.response
+        InnerResponse::new(deleted_index, component.response)
     }
 }
