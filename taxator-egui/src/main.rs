@@ -1,9 +1,11 @@
-use eframe::egui::{Button, CentralPanel, Context, ScrollArea, TextEdit, Vec2};
-use eframe::{run_native, App, CreationContext, Frame, NativeOptions};
+use eframe::{App, CreationContext, Frame, NativeOptions, run_native};
+use eframe::egui::{Button, CentralPanel, Context, ScrollArea, TextEdit, TopBottomPanel, Vec2};
+use eframe::egui::panel::TopBottomSide;
 
 use taxator_calculator::money::{Currency, Money};
 use taxator_calculator::tax::TaxCalculator;
 use taxator_egui::ledger::LedgerView;
+use taxator_egui::monetary::AmountEdit;
 
 struct TaxHelperApp {
     incomes: Vec<Money>,
@@ -43,6 +45,15 @@ impl TaxHelperApp {
 
 impl App for TaxHelperApp {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
+        TopBottomPanel::new(TopBottomSide::Top, "experiment").show(ctx, |ui| {
+
+            let mut amount = self.edited_amount.amount();
+            let amount_edit = AmountEdit::new("amount_editor", &mut amount);
+            ui.add(amount_edit);
+            self.edited_amount = Money::new(amount, Currency::UAH);
+            self.edited_amount = Money::new(amount, Currency::UAH);
+
+        });
         CentralPanel::default().show(ctx, |ui| {
             ScrollArea::vertical().show(ui, |ui| {
                 ui.vertical_centered_justified(|ui| {
