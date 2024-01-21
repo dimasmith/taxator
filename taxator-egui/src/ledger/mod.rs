@@ -3,6 +3,8 @@ use eframe::egui::{Grid, InnerResponse, Response, Ui, Widget};
 
 use taxator_calculator::money::Money;
 
+use crate::monetary::MoneyLabel;
+
 pub struct LedgerView<'a> {
     ledger: &'a [Money],
     can_delete: bool,
@@ -40,7 +42,7 @@ impl<'a> LedgerView<'a> {
             .show(ui, |ui| {
                 for (idx, money) in self.ledger.iter().enumerate() {
                     ui.label(format!("{}", idx));
-                    ui.label(format!("{}", money));
+                    ui.add(MoneyLabel::new(*money));
                     if self.can_delete && ui.button("X").clicked() {
                         deleted_index.replace(idx);
                     }
@@ -50,7 +52,7 @@ impl<'a> LedgerView<'a> {
                 if self.calculate_totals {
                     let total = Money::total(self.ledger).unwrap();
                     ui.label("Total: ");
-                    ui.label(format!("{}", total));
+                    ui.add(MoneyLabel::new(total));
                     if self.can_delete {
                         ui.label("");
                     }
