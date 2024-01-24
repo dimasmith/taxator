@@ -1,19 +1,19 @@
 //! Components to render income ledger
 use eframe::egui::{Grid, InnerResponse, Ui};
 
-use taxator_calculator::money::Money;
+use taxator_calculator::ledger::Ledger;
 
 use crate::monetary::MoneyLabel;
 
 pub struct LedgerView<'a> {
-    ledger: &'a [Money],
+    ledger: &'a Ledger,
     can_delete: bool,
     deleted_index: Option<&'a mut Option<usize>>,
     calculate_totals: bool,
 }
 
 impl<'a> LedgerView<'a> {
-    pub fn new(ledger: &'a [Money]) -> Self {
+    pub fn new(ledger: &'a Ledger) -> Self {
         Self {
             ledger,
             can_delete: false,
@@ -34,15 +34,16 @@ impl<'a> LedgerView<'a> {
     }
 
     pub fn show_ui(self, ui: &mut Ui) -> InnerResponse<Option<usize>> {
-        let num_columns = if self.can_delete { 3 } else { 2 };
+        let num_columns = if self.can_delete { 4 } else { 3 };
         let mut deleted_index = None;
         let component = Grid::new("ledger")
             .num_columns(num_columns)
             .striped(true)
             .show(ui, |ui| {
-                for (idx, money) in self.ledger.iter().enumerate() {
+                for (idx, record) in self.ledger.iter().iter().enumerate() {
                     ui.label(format!("{}", idx));
-                    ui.add(MoneyLabel::new(*money));
+                    ui.add(MoneyLabel::new(record.amount()));
+                    ui.label(format!("{:?}", record.date()));
                     if self.can_delete && ui.button("X").clicked() {
                         deleted_index.replace(idx);
                     }
@@ -50,7 +51,7 @@ impl<'a> LedgerView<'a> {
                 }
 
                 if self.calculate_totals {
-                    let total = Money::total(self.ledger).unwrap();
+                    let total = self.ledger.total();
                     ui.label("Total: ");
                     ui.add(MoneyLabel::new(total));
                     if self.can_delete {
