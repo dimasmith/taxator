@@ -34,16 +34,15 @@ impl<'a> LedgerView<'a> {
     }
 
     pub fn show_ui(self, ui: &mut Ui) -> InnerResponse<Option<usize>> {
-        let num_columns = if self.can_delete { 4 } else { 3 };
+        let num_columns = if self.can_delete { 3 } else { 2 };
         let mut deleted_index = None;
         let component = Grid::new("ledger")
             .num_columns(num_columns)
             .striped(true)
             .show(ui, |ui| {
                 for (idx, record) in self.ledger.iter().iter().enumerate() {
-                    ui.label(format!("{}", idx));
-                    ui.add(MoneyLabel::new(record.amount()));
                     ui.label(format!("{:?}", record.date()));
+                    ui.add(MoneyLabel::new(record.amount()));
                     if self.can_delete && ui.button("X").clicked() {
                         deleted_index.replace(idx);
                     }
